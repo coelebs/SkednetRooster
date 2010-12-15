@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, Login!</string>
+    <string name="app_name">Skednet Rooster</string>
+<string name="badge">Badge nummer:</string>
+<string name="password">Wachtwoord</string>
+<string name="submit">Login</string>
+</resources>
