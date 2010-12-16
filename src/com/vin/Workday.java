@@ -53,4 +53,7 @@ public class Workday {
 			station.length() == 0 && time.length() == 0;
 	}
 	
+	public String toString() {
+		return day + " " + date + " " + time + " " + station;
+	}
 }

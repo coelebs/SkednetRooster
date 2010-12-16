@@ -22,7 +22,8 @@
 	    />
 	<EditText
 	 	android:layout_width="fill_parent" 
-	    android:layout_height="wrap_content" 
+	    android:layout_height="wrap_content"
+	    android:password="true" 
 	    android:id="@+id/password_input"/>
 	<Button
 	 	android:layout_width="wrap_content" 
