@@ -21,14 +21,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.EditTextPreference;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -41,21 +39,27 @@ public class Login extends Activity implements Runnable{
 	
 	private DefaultHttpClient httpClient;
 	
+	private String username;
+	private String password;
+	
 	private ProgressDialog pd;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        showDialogs();
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		if(pref.contains(Constants.BADGE) && pref.contains(Constants.PASSWORD)) {
+			startActivity(new Intent(getApplicationContext(), Schedule.class));
+		} else {
+			showDialogs();
+		}
+		
         Schedule.delCache(getApplicationContext());
     }
        
-	private boolean login(String username, String password) {
+	private boolean login() {
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		if(pref.contains(Constants.BADGE) && pref.contains(Constants.PASSWORD))
-			return true;
-		
+
 		httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(Constants.BASEURL + "login.php");
         
@@ -105,6 +109,10 @@ public class Login extends Activity implements Runnable{
 				pd = new ProgressDialog(Login.this);
 				pd.setMessage("Logging in");
 				pd.show();
+				
+				username = ((EditText)loginDialog.findViewById(R.id.badge_input)).getText().toString();
+				password = ((EditText)loginDialog.findViewById(R.id.password_input)).getText().toString();
+				
 				Thread thread = new Thread(Login.this);
 				thread.start();
 			}
@@ -160,15 +168,8 @@ public class Login extends Activity implements Runnable{
 	}
 	
 	@Override
-	public void run() {
-		EditText edit = (EditText)findViewById(R.id.badge_input);
-		String username = edit.getText().toString();
-		
-		edit = (EditText)findViewById(R.id.password_input);
-		String password = edit.getText().toString();
-		
-		
-		if(login(username, password)) {
+	public void run() {		
+		if(login()) {
 			handler.sendEmptyMessage(RESULT_OK);
 		} else {
 			handler.sendEmptyMessage(RESULT_CANCELED);
@@ -188,4 +189,5 @@ public class Login extends Activity implements Runnable{
 			}
 		}
 	};
+
 }

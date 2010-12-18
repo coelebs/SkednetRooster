@@ -7,4 +7,6 @@
 <string name="submit">Login</string>
 <string name="choose_location">Kies een locatie</string>
 <string name="ok">Okay</string>
+<string name="logout">logout</string>
+<string name="exit">quit</string>
 </resources>

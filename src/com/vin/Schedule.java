@@ -2,11 +2,13 @@ package com.vin;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -28,10 +30,14 @@ import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 public class Schedule extends ListActivity implements Runnable {
 	private static final String TAG = "SCHEDULE";
@@ -53,8 +59,9 @@ public class Schedule extends ListActivity implements Runnable {
 	}
 
 	private boolean fillWorkdays() {
-		String s = readString();
-		if(s.length() == 0) {
+		workdays = readWorkdays();
+		String s = null;
+		if(workdays.isEmpty()) {
 			handler.sendEmptyMessage(1);
 			
 			SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -82,36 +89,35 @@ public class Schedule extends ListActivity implements Runnable {
 	        	while((buf = reader.readLine()) != null) {
 	        		s += buf;
 	        	}
-	        	writeString(s);
 	        } catch(Exception e) {
 	        	Log.e(TAG, e.getMessage());
 	        }
+		
+
+			handler.sendEmptyMessage(2);
+	        Document doc = Jsoup.parse(s);
+	        Elements elements = doc.select("table[width=825px]");
+	        ListIterator<Element> iterator = elements.listIterator();
+	
+	        while(iterator.hasNext()) {
+	        	Element next = iterator.next();
+	        	Elements rows = next.getElementsByTag("tr");
+	        	
+	        	ListIterator<Element> iterator1 = rows.listIterator();
+	        	while(iterator1.hasNext()) {
+	        		Element row = iterator1.next();
+	            	Workday day = new Workday();
+	            	day.setDay(row.select("td[style=padding-left:2px;width:68px;color:#000000]").text());
+	            	day.setDate(row.select("td[style=border-right:1px solid #01376D;width:84px;color:#000000]").text());
+	            	day.setTime(row.select("td[style=padding-left:2px;width:82px;border-right: 1px solid #01376D]").text());
+	            	day.setStation(row.select("td[style=padding-left:2px;border-right:0px solid #444444;width:40px;]").text());
+	            	if(!day.isEmpty())
+	            		workdays.add(day);	
+	        	}
+	        }
+            writeWorkdays(workdays);
 		}
-
-		handler.sendEmptyMessage(2);
-        Document doc = Jsoup.parse(s);
-        Elements elements = doc.select("table[width=825px]");
-        ListIterator<Element> iterator = elements.listIterator();
-
-        while(iterator.hasNext()) {
-        	Element next = iterator.next();
-        	Elements rows = next.getElementsByTag("tr");
-        	
-        	ListIterator<Element> iterator1 = rows.listIterator();
-        	while(iterator1.hasNext()) {
-        		Element row = iterator1.next();
-            	Workday day = new Workday();
-            	day.setDay(row.select("td[style=padding-left:2px;width:68px;color:#000000]").text());
-            	day.setDate(row.select("td[style=border-right:1px solid #01376D;width:84px;color:#000000]").text());
-            	day.setTime(row.select("td[style=padding-left:2px;width:82px;border-right: 1px solid #01376D]").text());
-            	day.setStation(row.select("td[style=padding-left:2px;border-right:0px solid #444444;width:40px;]").text());
-            	if(!day.isEmpty())
-            		workdays.add(day);	
-        	}
-        	
-        	
-        }
-
+        
         handler.sendEmptyMessage(0);
         return true;
 	}
@@ -142,13 +148,12 @@ public class Schedule extends ListActivity implements Runnable {
 		fillWorkdays();
 	}
 	
-	private void writeString(String s) {
-		//TODO Serialize android arraylist
+	private void writeWorkdays(ArrayList<Workday> workdays) {
 		File f = new File(getCacheDir(), "schedule");
-		FileOutputStream out;
+		ObjectOutputStream  out;
 		try {
-			out = new FileOutputStream(f);
-			out.write(s.getBytes());
+			out = new ObjectOutputStream(new FileOutputStream(f));
+			out.writeObject(workdays);
 		} catch (FileNotFoundException e) {
         	Log.e(TAG, e.getMessage());
 		} catch (IOException e) {
@@ -156,22 +161,49 @@ public class Schedule extends ListActivity implements Runnable {
 		}
 	}
 	
-	private String readString() {
+	@SuppressWarnings("unchecked")
+	private ArrayList<Workday> readWorkdays() {
 		File f = new File(getCacheDir(), "schedule");
-		String buf, s = "";
+		ObjectInputStream in;
+		ArrayList<Workday> workdays = new ArrayList<Workday>();
 		try {
-			BufferedReader input = new BufferedReader(new FileReader(f));
-			while((buf = input.readLine()) != null) {
-				s += buf;
-			}
+			in = new ObjectInputStream(new FileInputStream(f));
+				workdays = (ArrayList<Workday>) in.readObject();
 		} catch(IOException e) {
         	Log.e(TAG, e.getMessage());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return s;
+		return workdays;
 	}
 	
 	public static void delCache(Context context) {
 		File f = new File(context.getCacheDir(), "schedule");
 		f.delete();
+	}
+	
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.menu, menu);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	    case R.id.logout:
+	    	Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+	    	edit.remove(Constants.BADGE);
+	    	edit.remove(Constants.PASSWORD);
+	    	edit.remove(Constants.LOCATION);
+	    	edit.commit();
+	        return true;
+	    default:
+	        return super.onOptionsItemSelected(item);
+	    }
 	}
 }

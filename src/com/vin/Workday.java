@@ -1,6 +1,12 @@
 package com.vin;
 
-public class Workday {
+import java.io.Serializable;
+
+public class Workday implements Serializable {
+	/**
+	 * ID for serialization
+	 */
+	private static final long serialVersionUID = -785496744501147274L;
 	private String day;
 	private String date;
 	private String time;
