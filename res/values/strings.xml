@@ -5,4 +5,6 @@
 <string name="badge">Badge nummer:</string>
 <string name="password">Wachtwoord</string>
 <string name="submit">Login</string>
+<string name="choose_location">Kies een locatie</string>
+<string name="ok">Okay</string>
 </resources>

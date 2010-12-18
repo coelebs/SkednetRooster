@@ -25,22 +25,27 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 public class Schedule extends ListActivity implements Runnable {
 	private static final String TAG = "SCHEDULE";
 	
 	private ArrayList<Workday> workdays;
+	private ProgressDialog pd;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
 		workdays = new ArrayList<Workday>();
+		
+		pd = new ProgressDialog(this);
 		
 		Thread thread = new Thread(this);
 		thread.start();
@@ -50,6 +55,8 @@ public class Schedule extends ListActivity implements Runnable {
 	private boolean fillWorkdays() {
 		String s = readString();
 		if(s.length() == 0) {
+			handler.sendEmptyMessage(1);
+			
 			SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 			String username = pref.getString(Constants.BADGE, "");
 			String password = pref.getString(Constants.PASSWORD, "");
@@ -77,10 +84,11 @@ public class Schedule extends ListActivity implements Runnable {
 	        	}
 	        	writeString(s);
 	        } catch(Exception e) {
-	        	e.printStackTrace();
+	        	Log.e(TAG, e.getMessage());
 	        }
 		}
 
+		handler.sendEmptyMessage(2);
         Document doc = Jsoup.parse(s);
         Elements elements = doc.select("table[width=825px]");
         ListIterator<Element> iterator = elements.listIterator();
@@ -102,7 +110,6 @@ public class Schedule extends ListActivity implements Runnable {
         	}
         	
         	
-
         }
 
         handler.sendEmptyMessage(0);
@@ -112,7 +119,21 @@ public class Schedule extends ListActivity implements Runnable {
 	private Handler handler = new Handler() {
 	
 		public void handleMessage(android.os.Message msg) {
-			getListView().setAdapter(new WorkdayAdapter(workdays));
+			switch(msg.what) {
+				case 0:
+					getListView().setAdapter(new WorkdayAdapter(workdays));
+					pd.cancel();
+					break;
+				case 1:
+					pd.setMessage("Loading page...");
+					pd.show();
+					break;
+				case 2:
+					pd.setMessage("Processing page...");
+					pd.show();
+					break;
+			}
+
 		}
 	};
 	
@@ -122,15 +143,16 @@ public class Schedule extends ListActivity implements Runnable {
 	}
 	
 	private void writeString(String s) {
+		//TODO Serialize android arraylist
 		File f = new File(getCacheDir(), "schedule");
 		FileOutputStream out;
 		try {
 			out = new FileOutputStream(f);
 			out.write(s.getBytes());
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+        	Log.e(TAG, e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
+        	Log.e(TAG, e.getMessage());
 		}
 	}
 	
@@ -143,7 +165,7 @@ public class Schedule extends ListActivity implements Runnable {
 				s += buf;
 			}
 		} catch(IOException e) {
-			e.printStackTrace();
+        	Log.e(TAG, e.getMessage());
 		}
 		return s;
 	}
