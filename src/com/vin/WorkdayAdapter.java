@@ -2,7 +2,9 @@ package com.vin;
 
 import java.util.ArrayList;
 
+import android.content.SharedPreferences;
 import android.database.DataSetObserver;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
@@ -37,10 +39,25 @@ public class WorkdayAdapter implements ListAdapter {
 		return 0;
 	}
 
+	/**
+	 * Returns a view that represents an item in the arraylist.
+	 * If it is a weeknumber object and weeknumbers are disabled in the settings
+	 * it will return an empty view
+	 */
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(parent.getContext());
 		TextView row = new TextView(parent.getContext());
-		row.setText(workdays.get(position).toString());
+		Workday day = workdays.get(position); 
+		if(day.toString().equals(" \n ") && day.getWeeknumber().length() != 0) {
+			if(day.getWeeknumber().length() != 0 && !pref.getBoolean("weeknumbers", false))
+				//This allows me to add a empty line, needs listSeperator to be gone
+        		return new View(parent.getContext()); 
+			row.setText(day.getWeeknumber());
+		} else {
+			row.setTextColor(0xFFFFFFFF);
+			row.setText(day.toString());
+		}
 		return row;
 	}
 

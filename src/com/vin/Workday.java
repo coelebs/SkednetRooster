@@ -11,6 +11,7 @@ public class Workday implements Serializable {
 	private String date;
 	private String time;
 	private String station;
+	private String weeknumber;
 	
 	public Workday(String day, String date, String time, String station) {
 		this.setDay(day);
@@ -54,12 +55,28 @@ public class Workday implements Serializable {
 		return day;
 	}
 	
-	public boolean isEmpty() {
-		return day.length() == 0 && date.length() == 0 &&
-			station.length() == 0 && time.length() == 0;
+	public void setWeeknumber(String weeknumber) {
+		this.weeknumber = weeknumber;
 	}
-	
+
+	public String getWeeknumber() {
+		return weeknumber;
+	}
+
+	/**
+	 * Checks the contents of day, date, time, and station to check if this is a filled workday
+	 * @return A boolean that indicates if this is a workday or not
+	 */
+	public boolean isWorkday() {
+		return (day.length() != 0 && date.length() != 0 &&
+			station.length() != 0 && time.length() != 0);
+	}
+
+	/**
+	 * A string that represents the current object
+	 * in the format "day date\ntime station"
+	 */
 	public String toString() {
-		return day + " " + date + " " + time + " " + station;
+		return day + " " + date + "\n" + time + " " + station;
 	}
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+  xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory
+		android:title="@string/logincredentials">
+		<EditTextPreference
+			android:key="badge"
+			android:title="@string/badge"/>
+		<EditTextPreference
+			android:key="password"
+			android:title="@string/password"
+			android:password="true"/>
+	</PreferenceCategory>
+ 	<CheckBoxPreference
+		android:title="@string/weeknumbers"
+		android:key="weeknumbers"/>
+</PreferenceScreen>

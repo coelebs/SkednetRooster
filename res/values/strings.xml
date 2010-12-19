@@ -9,4 +9,7 @@
 <string name="ok">Okay</string>
 <string name="logout">logout</string>
 <string name="exit">quit</string>
+<string name="settings">settings</string>
+<string name="logincredentials">Inloggegevens</string>
+<string name="weeknumbers">Weeknummers</string>
 </resources>

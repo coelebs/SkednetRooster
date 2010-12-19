@@ -29,6 +29,7 @@ import org.jsoup.select.Elements;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
@@ -53,11 +54,18 @@ public class Schedule extends ListActivity implements Runnable {
 		
 		pd = new ProgressDialog(this);
 		
+		getListView().setDividerHeight(0);
+		
 		Thread thread = new Thread(this);
 		thread.start();
 		
 	}
 
+	/**
+	 * Retrieves all the current workdays from BASEURL, caches them and uses the cache if available
+	 * It also adds weeknumbers as if they were workdays
+	 * @return A boolean to indicate wether it succeeded
+	 */
 	private boolean fillWorkdays() {
 		workdays = readWorkdays();
 		String s = null;
@@ -111,7 +119,9 @@ public class Schedule extends ListActivity implements Runnable {
 	            	day.setDate(row.select("td[style=border-right:1px solid #01376D;width:84px;color:#000000]").text());
 	            	day.setTime(row.select("td[style=padding-left:2px;width:82px;border-right: 1px solid #01376D]").text());
 	            	day.setStation(row.select("td[style=padding-left:2px;border-right:0px solid #444444;width:40px;]").text());
-	            	if(!day.isEmpty())
+	            	day.setWeeknumber(row.select("th[style=border-bottom:1px solid #01376D;background-color:#0059bb;color:#FFFFFF;text-align:center;font-weight:bold").text());
+	            	
+	            	if(day.isWorkday() || day.getWeeknumber().length() > 0)
 	            		workdays.add(day);	
 	        	}
 	        }
@@ -122,6 +132,9 @@ public class Schedule extends ListActivity implements Runnable {
         return true;
 	}
 	
+	/**
+	 * A handler to handle the result
+	 */
 	private Handler handler = new Handler() {
 	
 		public void handleMessage(android.os.Message msg) {
@@ -143,11 +156,18 @@ public class Schedule extends ListActivity implements Runnable {
 		}
 	};
 	
+	/**
+	 * A thread that runs fillWorkdays()
+	 */
 	@Override
 	public void run() {
 		fillWorkdays();
 	}
 	
+	/**
+	 * Caches a workdays arraylist
+	 * @param workdays The arraylist with workdays
+	 */
 	private void writeWorkdays(ArrayList<Workday> workdays) {
 		File f = new File(getCacheDir(), "schedule");
 		ObjectOutputStream  out;
@@ -161,6 +181,10 @@ public class Schedule extends ListActivity implements Runnable {
 		}
 	}
 	
+	/**
+	 * Reads arraylist with workdays from cache
+	 * @return The arraylist with workdays
+	 */
 	@SuppressWarnings("unchecked")
 	private ArrayList<Workday> readWorkdays() {
 		File f = new File(getCacheDir(), "schedule");
@@ -178,11 +202,14 @@ public class Schedule extends ListActivity implements Runnable {
 		return workdays;
 	}
 	
+	/**
+	 * Clears the cache
+	 * @param context The current applicationcontext
+	 */
 	public static void delCache(Context context) {
 		File f = new File(context.getCacheDir(), "schedule");
 		f.delete();
 	}
-	
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -193,17 +220,19 @@ public class Schedule extends ListActivity implements Runnable {
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle item selection
 	    switch (item.getItemId()) {
-	    case R.id.logout:
-	    	Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-	    	edit.remove(Constants.BADGE);
-	    	edit.remove(Constants.PASSWORD);
-	    	edit.remove(Constants.LOCATION);
-	    	edit.commit();
-	        return true;
-	    default:
-	        return super.onOptionsItemSelected(item);
+		    case R.id.logout:
+		    	Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+		    	edit.remove(Constants.BADGE);
+		    	edit.remove(Constants.PASSWORD);
+		    	edit.remove(Constants.LOCATION);
+		    	edit.commit();
+		        return true;
+		    case R.id.settings:
+		    	startActivity(new Intent(getApplicationContext(), Settings.class));
+		    	return true;
+		    default:
+		        return super.onOptionsItemSelected(item);
 	    }
 	}
 }
