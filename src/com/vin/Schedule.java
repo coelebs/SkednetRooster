@@ -51,14 +51,21 @@ public class Schedule extends ListActivity implements Runnable {
 		super.onCreate(savedInstanceState);
 		
 		workdays = new ArrayList<Workday>();
-		
 		pd = new ProgressDialog(this);
 		
 		getListView().setDividerHeight(0);
 		
 		Thread thread = new Thread(this);
-		thread.start();
+		thread.start();	
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
 		
+		//If workdays is filled, reload the page. Used to reload after settings...
+		if(!workdays.isEmpty())
+			handler.sendEmptyMessage(0);
 	}
 
 	/**
@@ -227,7 +234,9 @@ public class Schedule extends ListActivity implements Runnable {
 		    	edit.remove(Constants.PASSWORD);
 		    	edit.remove(Constants.LOCATION);
 		    	edit.commit();
-		        return true;
+		    	finish();
+		    	startActivity(new Intent(getApplicationContext(), Login.class));
+		    	return true;
 		    case R.id.settings:
 		    	startActivity(new Intent(getApplicationContext(), Settings.class));
 		    	return true;

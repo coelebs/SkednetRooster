@@ -41,6 +41,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class Login extends Activity implements Runnable{
 	private static final String TAG = "SKEDNETLOGIN";
@@ -234,7 +235,7 @@ public class Login extends Activity implements Runnable{
 				finish();
 				startActivity(new Intent(getApplicationContext(), Schedule.class));
 			} else {
-				finish();
+				Toast.makeText(getApplicationContext(), getString(R.string.login_failed), Toast.LENGTH_LONG).show();
 			}
 		}
 	};
