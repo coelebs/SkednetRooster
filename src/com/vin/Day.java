@@ -2,7 +2,7 @@ package com.vin;
 
 import java.io.Serializable;
 
-public class Workday implements Serializable {
+public class Day implements Serializable {
 	/**
 	 * ID for serialization
 	 */
@@ -11,16 +11,15 @@ public class Workday implements Serializable {
 	private String date;
 	private String time;
 	private String station;
-	private String weeknumber;
 	
-	public Workday(String day, String date, String time, String station) {
+	public Day(String day, String date, String time, String station) {
 		this.setDay(day);
 		this.setDate(date);
 		this.setTime(time);
 		this.setStation(station);
 	}
 
-	public Workday() {
+	public Day() {
 	}
 	
 	public void setDate(String date) {
@@ -55,14 +54,6 @@ public class Workday implements Serializable {
 		return day;
 	}
 	
-	public void setWeeknumber(String weeknumber) {
-		this.weeknumber = weeknumber;
-	}
-
-	public String getWeeknumber() {
-		return weeknumber;
-	}
-
 	/**
 	 * Checks the contents of day, date, time, and station to check if this is a filled workday
 	 * @return A boolean that indicates if this is a workday or not
@@ -77,6 +68,6 @@ public class Workday implements Serializable {
 	 * in the format "day date\ntime station"
 	 */
 	public String toString() {
-		return day + " " + date + "\n" + time + " " + station;
+		return day + " " + date + " " + time + " " + station;
 	}
 }

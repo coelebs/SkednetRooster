@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:background="@drawable/background"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  android:orientation="vertical"
+  android:gravity="center"
+  android:padding="20sp">
+  <LinearLayout
+  	  xmlns:android="http://schemas.android.com/apk/res/android"
+	  android:background="@drawable/week"
+	  android:layout_width="fill_parent"
+	  android:layout_height="wrap_content"
+	  android:orientation="vertical">
+	  	<TextView
+		  xmlns:android="http://schemas.android.com/apk/res/android"
+		  android:background="@drawable/week_numbers"
+		  android:layout_width="fill_parent"
+		  android:layout_height="wrap_content"
+		  android:gravity="center"
+		  android:textStyle="bold"
+		  android:textColor="#000000"
+		  android:id="@+id/weeknumber"
+		  android:layout_marginBottom="5sp"/>
+		<TextView
+		  xmlns:android="http://schemas.android.com/apk/res/android"
+		  android:background="@drawable/week_days"
+		  android:layout_width="fill_parent"
+		  android:layout_height="wrap_content"
+		  android:textColor="#000000"
+		  android:gravity="center"
+		  android:id="@+id/weekdays"/>
+	</LinearLayout>
+</LinearLayout>
