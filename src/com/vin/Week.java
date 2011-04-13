@@ -1,8 +1,11 @@
 package com.vin;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Week {
+public class Week implements Serializable {
+	private static final long serialVersionUID = -2231080733328649395L;
+	
 	private ArrayList<Day> days;
 	private int number;
 	

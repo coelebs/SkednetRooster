@@ -102,6 +102,9 @@ public class Login extends Activity implements Runnable{
        
     }  
 	
+	/**
+	 * Shows a login dialog with username/password and a list of locations
+	 */
 	private void showDialogs() {
         final Dialog loginDialog = new Dialog(this);
 
