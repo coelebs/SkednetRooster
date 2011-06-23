@@ -1,4 +1,4 @@
-package com.vin;
+package nl.vincentkriek;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +24,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import nl.vincentkriek.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;

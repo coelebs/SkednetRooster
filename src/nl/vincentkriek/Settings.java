@@ -1,4 +1,6 @@
-package com.vin;
+package nl.vincentkriek;
+
+import nl.vincentkriek.R;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;

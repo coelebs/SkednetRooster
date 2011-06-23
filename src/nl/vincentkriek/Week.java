@@ -1,4 +1,4 @@
-package com.vin;
+package nl.vincentkriek;
 
 import java.io.Serializable;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.vin;
+package nl.vincentkriek;
 
 public class Constants {
 	/**

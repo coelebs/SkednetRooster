@@ -3,9 +3,13 @@
 	<item 
 		android:id="@+id/logout"
 		android:title="@string/logout"
-		android:icon="@android:drawable/ic_menu_revert"/>
+		android:icon="@drawable/logout"/>
 	<item 
 	 	android:id="@+id/settings"
 		android:title="@string/settings"
-		android:icon="@android:drawable/ic_menu_preferences"/>
+		android:icon="@drawable/preferences"/>
+	<item 
+	 	android:id="@+id/refresh"
+		android:title="@string/refresh"
+		android:icon="@drawable/refresh"/>
 </menu>

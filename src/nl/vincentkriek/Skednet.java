@@ -1,4 +1,4 @@
-package com.vin;
+package nl.vincentkriek;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,6 +28,8 @@ import org.jsoup.select.Elements;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -57,12 +59,22 @@ public class Skednet {
 	 */
 	@SuppressWarnings("unchecked")
 	protected static ArrayList<Week> readWorkdays(Context context) {
-		File f = new File(context.getCacheDir(), "schedule");
 		ObjectInputStream in;
 		ArrayList<Week> workdays = new ArrayList<Week>();
+		
+		File dir = new File(context.getCacheDir(), "vincentkriek/");
+		dir.mkdirs();
+		
+		File f = new File(dir, "schedule");
+		
+		if(f.lastModified() < (f.lastModified() - (60 * 60 * 24 * 7))) {
+			f.delete();
+			return workdays;
+		}
+		
 		try {
 			in = new ObjectInputStream(new FileInputStream(f));
-				workdays = (ArrayList<Week>) in.readObject();
+			workdays = (ArrayList<Week>) in.readObject();
 		} catch(IOException e) {
         	Log.e(TAG, e.getMessage());
 		} catch (ClassNotFoundException e) {
@@ -77,11 +89,15 @@ public class Skednet {
 	 * @param context Application context, used to get the cachedir
 	 */
 	protected static void writeWorkdays(ArrayList<Week> workdays, Context context) {
-		File f = new File(context.getCacheDir(), "schedule");
+		File dir = new File(context.getCacheDir(), "vincentkriek/");
+		dir.mkdirs();
+		
+		File f = new File(dir, "schedule");
 		ObjectOutputStream  out;
 		try {
 			out = new ObjectOutputStream(new FileOutputStream(f));
 			out.writeObject(workdays);
+			out.close();
 		} catch (FileNotFoundException e) {
         	Log.e(TAG, e.getMessage());
 		} catch (IOException e) {
@@ -173,4 +189,22 @@ public class Skednet {
         
     	return html;
 	}
+	
+	/**
+	 * Delete all the information about the current logged in user
+	 */
+	protected static void logOut(Context context) {
+    	Editor edit = PreferenceManager.getDefaultSharedPreferences(context).edit();
+    	edit.remove(Constants.BADGE);
+    	edit.remove(Constants.PASSWORD);
+    	edit.remove(Constants.LOCATION);
+    	edit.commit();
+    	
+		File dir = new File(Environment.getExternalStorageDirectory(), "com.vin/");
+		dir.mkdirs();
+		File f = new File(dir, "schedule");
+		
+		f.delete();
+	}
+	 
 }

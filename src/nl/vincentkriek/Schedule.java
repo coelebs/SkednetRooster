@@ -1,17 +1,17 @@
-package com.vin;
+package nl.vincentkriek;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import nl.vincentkriek.R;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -20,10 +20,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class Schedule extends Activity {
+	@SuppressWarnings("unused")
 	private static final String TAG = "SCHEDULE";
 	
 	private ArrayList<Week> workdays;
 	private ProgressDialog pd;
+	private boolean refresh = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,21 +67,23 @@ public class Schedule extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    switch (item.getItemId()) {
 		    case R.id.logout:
-		    	Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-		    	edit.remove(Constants.BADGE);
-		    	edit.remove(Constants.PASSWORD);
-		    	edit.remove(Constants.LOCATION);
-		    	edit.commit();
+		    	Skednet.logOut(getApplicationContext());
 		    	finish();
 		    	startActivity(new Intent(getApplicationContext(), Login.class));
 		    	return true;
 		    case R.id.settings:
 		    	startActivity(new Intent(getApplicationContext(), Settings.class));
 		    	return true;
+		    case R.id.refresh:
+		    	ScheduleFetcher fetch = new ScheduleFetcher();
+		    	refresh = true;
+				fetch.execute(this);
+		    	return true;
 		    default:
 		        return super.onOptionsItemSelected(item);
 	    }
 	}
+	
 	
 	
 	public class ScheduleFetcher extends AsyncTask<Context, Integer, Object> {
@@ -91,7 +95,13 @@ public class Schedule extends Activity {
 		 */
 		@Override
 		protected Object doInBackground(Context... params) {
-			workdays = Skednet.readWorkdays(getApplicationContext());
+			if(!refresh) {
+				workdays = Skednet.readWorkdays(getApplicationContext());
+			} else {
+				workdays = new ArrayList<Week>();
+			}
+			refresh = false;
+			
 			if(workdays.isEmpty()) {
 				publishProgress(1);
 		        String html = Skednet.getAuthorized("index.php?page=pschedule", getApplicationContext());
@@ -106,15 +116,15 @@ public class Schedule extends Activity {
 		protected void onProgressUpdate(Integer... values) {
 			super.onProgressUpdate(values);
 			switch(values[0]) {
-				case 0:
-
 				case 1:
 					pd.setMessage("Loading page...");
 					pd.show();
 					break;
 				case 2:
 					pd.setMessage("Processing page...");
-					pd.show();
+					break;
+				case 3:
+					pd.cancel();
 					break;
 			}
 		}
@@ -122,6 +132,7 @@ public class Schedule extends Activity {
 		@Override
 		protected void onPostExecute(Object result) {
 			super.onPostExecute(result);
+			((LinearLayout)findViewById(R.id.weekday_layout)).removeAllViews();
 			for(Week week: workdays) {
 				View root = getLayoutInflater().inflate(R.layout.week, null);
 
@@ -141,8 +152,7 @@ public class Schedule extends Activity {
 				
 				((LinearLayout)findViewById(R.id.weekday_layout)).addView(root);
 			}
-			pd.cancel();
+			publishProgress(3);
 		}
-		
 	}
 }

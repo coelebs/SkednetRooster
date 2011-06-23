@@ -11,7 +11,4 @@
 			android:title="@string/password"
 			android:password="true"/>
 	</PreferenceCategory>
- 	<CheckBoxPreference
-		android:title="@string/weeknumbers"
-		android:key="weeknumbers"/>
 </PreferenceScreen>
