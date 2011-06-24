@@ -1,10 +1,10 @@
-package nl.vincentkriek;
+package nl.vincentkriek.skednet;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import nl.vincentkriek.R;
+import nl.vincentkriek.skednet.R;
 
 import android.app.Activity;
 import android.app.ProgressDialog;

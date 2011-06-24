@@ -1,4 +1,4 @@
-package nl.vincentkriek;
+package nl.vincentkriek.skednet;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +25,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import nl.vincentkriek.R;
+import nl.vincentkriek.skednet.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;

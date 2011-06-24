@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package nl.vincentkriek;
+package nl.vincentkriek.skednet;
 
 public final class R {
     public static final class attr {

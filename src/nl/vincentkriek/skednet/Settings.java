@@ -1,6 +1,6 @@
-package nl.vincentkriek;
+package nl.vincentkriek.skednet;
 
-import nl.vincentkriek.R;
+import nl.vincentkriek.skednet.R;
 
 import android.os.Bundle;
 import android.preference.PreferenceActivity;

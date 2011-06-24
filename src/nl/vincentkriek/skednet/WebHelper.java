@@ -1,4 +1,4 @@
-package nl.vincentkriek;
+package nl.vincentkriek.skednet;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
