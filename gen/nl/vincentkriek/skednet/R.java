@@ -26,6 +26,7 @@ public final class R {
     }
     public static final class id {
         public static final int badge_input=0x7f080001;
+        public static final int freeRequest=0x7f08000b;
         public static final int logout=0x7f080008;
         public static final int password_input=0x7f080002;
         public static final int refresh=0x7f08000a;
@@ -51,6 +52,7 @@ public final class R {
         public static final int badge=0x7f050001;
         public static final int choose_location=0x7f050004;
         public static final int exit=0x7f050007;
+        public static final int freeRequest=0x7f05000d;
         public static final int login_failed=0x7f05000b;
         public static final int logincredentials=0x7f050009;
         public static final int logout=0x7f050006;

@@ -9,9 +9,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.StreamCorruptedException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
+
+import nl.vincentkriek.skednet.schedule.Day;
+import nl.vincentkriek.skednet.schedule.Week;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -34,7 +40,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class Skednet {
-	private static final String TAG = "SKEDNET";
+	private static final String TAG = "nl.vincentkriek.skednet";
 	
 	/**
 	 * Retrieves all the current workdays from BASEURL, caches them and uses the cache if available
@@ -45,7 +51,7 @@ public class Skednet {
 	public static ArrayList<Week> getWorkdays(Context context) {
 		ArrayList<Week> workdays = readWorkdays(context);
 		if(workdays.isEmpty()) {
-	        String html = getAuthorized("index.php?page=pschedule", context);
+	        String html = getAuthorized("index.php?page=freerequest2", context);
 	        workdays = parseSchedule(html);
             writeWorkdays(workdays, context);
 		}
@@ -58,7 +64,7 @@ public class Skednet {
 	 * @return The arraylist with workdays
 	 */
 	@SuppressWarnings("unchecked")
-	protected static ArrayList<Week> readWorkdays(Context context) {
+	public static ArrayList<Week> readWorkdays(Context context) {
 		ObjectInputStream in;
 		ArrayList<Week> workdays = new ArrayList<Week>();
 		
@@ -88,7 +94,7 @@ public class Skednet {
 	 * @param workdays The arraylist with workdays
 	 * @param context Application context, used to get the cachedir
 	 */
-	protected static void writeWorkdays(ArrayList<Week> workdays, Context context) {
+	public static void writeWorkdays(ArrayList<Week> workdays, Context context) {
 		File dir = new File(context.getCacheDir(), "vincentkriek/");
 		dir.mkdirs();
 		
@@ -110,7 +116,7 @@ public class Skednet {
 	 * @param html the skednet schedule page
 	 * @return A ArrayList of weeks
 	 */
-	protected static ArrayList<Week> parseSchedule(String html) {
+	public static ArrayList<Week> parseSchedule(String html) {
 		ArrayList<Week> workdays = new ArrayList<Week>();
 		
         Document doc = Jsoup.parse(html);
@@ -147,6 +153,25 @@ public class Skednet {
         }
         return workdays;
 	}
+	
+	public static ArrayList<FreeRequest> parseDaysOff(String html) {
+		ArrayList<FreeRequest> days = new ArrayList<FreeRequest>();
+		
+		Document doc = Jsoup.parse(html);
+		Elements elements = doc.select("table[style=width:100%;border-collapse: collapse; border: 0px solid #01376D]" +
+				" td[style*=text-align:left] table[style=width:100%] > tr:gt(0)");
+	
+    	ListIterator<Element> iterator1 = elements.listIterator();
+     	while(iterator1.hasNext()) {
+    		Element row = iterator1.next();
+    		
+    		days.add(new FreeRequest(row.child(0).text(), row.child(1).text(), 
+    									row.child(2).text(), row.child(3).text()));
+    		
+    	}
+    	
+		return days;
+	}
 
 	/**
 	 * Make a GET request to a page
@@ -154,28 +179,29 @@ public class Skednet {
 	 * @param context The current application context
 	 * @return The page source
 	 */
-	protected static String getAuthorized(String path, Context context) {
+	public static String getAuthorized(String path, Context context) {
 		String html = null;
 		
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 		String username = pref.getString(Constants.BADGE, "");
 		String password = pref.getString(Constants.PASSWORD, "");
+		String location = pref.getInt(Constants.LOCATION, 0) + "";
 		
 		DefaultHttpClient httpClient = new DefaultHttpClient();
         HttpPost httpPost = new HttpPost(Constants.BASEURL + "login.php");
         
         List<NameValuePair> data = new ArrayList<NameValuePair>();
         data.add(new BasicNameValuePair(Constants.COMPANY, "1")); //McDonald's is 1, for testing purposes
-        data.add(new BasicNameValuePair(Constants.LOCATION, "1015")); //Location HSW & Markt
+        data.add(new BasicNameValuePair(Constants.LOCATION, location)); //Location HSW & Markt
         data.add(new BasicNameValuePair(Constants.BADGE, username));
         data.add(new BasicNameValuePair(Constants.PASSWORD, password));
         
-        WebHelper.post(Constants.BASEURL + "index.php?page=pschedule", data);
+        WebHelper.post(Constants.BASEURL + path, data);
         try {
         	httpPost.setEntity(new  UrlEncodedFormEntity(data, HTTP.UTF_8));
         	httpClient.execute(httpPost);
         	
-        	HttpResponse response = httpClient.execute(new HttpGet(Constants.BASEURL + "index.php?page=pschedule"));
+        	HttpResponse response = httpClient.execute(new HttpGet(Constants.BASEURL + path));
         	
         	BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
         	String buf;
@@ -191,9 +217,97 @@ public class Skednet {
 	}
 	
 	/**
+	 * Fetches all the locations and their id from the BASEURL, caches it, and uses the cache if available
+	 * @return A map with the location String as key and id as value
+	 */
+	@SuppressWarnings("unchecked")
+	public static Map<String, Integer> getLocations(Context context) {
+		File f = new File(context.getCacheDir(), "locations");
+		ObjectInputStream in;
+		Map<String, Integer> map = null;
+		try {
+			in = new ObjectInputStream(new FileInputStream(f));
+			map = (Map<String, Integer>) in.readObject();
+		} catch (StreamCorruptedException e) {
+        	Log.e(TAG, e.getMessage());
+		} catch (FileNotFoundException e) {
+        	Log.e(TAG, e.getMessage());
+		} catch (IOException e) {
+        	Log.e(TAG, e.getMessage());
+		} catch (ClassNotFoundException e) {
+        	Log.e(TAG, e.getMessage());
+		}
+			
+		if(map == null) {
+			map = new HashMap<String, Integer>();
+			
+	        List<NameValuePair> params = new ArrayList<NameValuePair>();
+	        params.add(new BasicNameValuePair(Constants.COMPANY, "1")); //McDonald's is 1, for testing purposes
+	        
+	        String s = WebHelper.post(Constants.BASEURL + "login.php", params);
+	        Document document = Jsoup.parse(s);
+	        Elements elements = document.select("select[name=locationid] > option");
+	        ListIterator<Element> iterator = elements.listIterator();
+	        while(iterator.hasNext()) {
+	        	Element element = iterator.next();
+	        	if(element.text().equals("")) 
+	        		continue;
+	        	
+	        	map.put(element.text(), Integer.parseInt(element.attr("value")));
+	        }
+	        ObjectOutputStream out;
+			try {
+				out = new ObjectOutputStream(new FileOutputStream(f));
+		        out.writeObject(map);  
+			} catch (FileNotFoundException e) {
+	        	Log.e(TAG, e.getMessage());
+			} catch (IOException e) {
+	        	Log.e(TAG, e.getMessage());
+			}
+		}
+        return map;
+	}
+	
+	/**
+     * Logs the user in, uses the classes username and password because of threads
+     * @return Boolean to indicate if the login succeeded
+     */
+	public static boolean login(Context context, String username, String password) {
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+
+		DefaultHttpClient httpClient = new DefaultHttpClient();
+        HttpPost httpPost = new HttpPost(Constants.BASEURL + "login.php");
+        
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair(Constants.COMPANY, "1")); //McDonald's is 1, for testing purposes
+        params.add(new BasicNameValuePair(Constants.LOCATION, pref.getInt(Constants.LOCATION, 0) + "")); 
+        params.add(new BasicNameValuePair(Constants.BADGE, username));
+        params.add(new BasicNameValuePair(Constants.PASSWORD, password));
+        
+        try {
+        	httpPost.setEntity(new  UrlEncodedFormEntity(params, HTTP.UTF_8));
+        	httpClient.execute(httpPost);
+        	if(httpClient.getCookieStore().getCookies().isEmpty()) {
+        		return false;
+        	} else {
+        		Editor editor = pref.edit();
+        		editor.putString(Constants.BADGE, username);
+        		editor.putString(Constants.PASSWORD, password);
+        		editor.commit();
+        		return true;
+        	}
+        } catch(Exception e) {
+        	Log.e(TAG, e.getMessage());
+        }
+        
+        return false;
+       
+    }  
+	
+	/**
 	 * Delete all the information about the current logged in user
 	 */
-	protected static void logOut(Context context) {
+	public static void logOut(Context context) {
     	Editor edit = PreferenceManager.getDefaultSharedPreferences(context).edit();
     	edit.remove(Constants.BADGE);
     	edit.remove(Constants.PASSWORD);
@@ -204,6 +318,15 @@ public class Skednet {
 		dir.mkdirs();
 		File f = new File(dir, "schedule");
 		
+		f.delete();
+	}
+	
+	/**
+	 * Clears the cache
+	 * @param context The current applicationcontext
+	 */
+	public static void delCache(Context context) {
+		File f = new File(context.getCacheDir(), "schedule");
 		f.delete();
 	}
 	 

@@ -13,6 +13,8 @@
 	<string name="weeknumbers">Weeknummers</string>
 	<string name="login_failed">Het inloggen is gefaald! Heb jij wel de juiste gegevens ingevoerd?</string>
 	<string name="refresh">Herladen</string>
+	<string name="freeRequest">Vrij vragen</string>
+	
 	
 	<color name="white">#FFFFFFFF</color>
 </resources>
