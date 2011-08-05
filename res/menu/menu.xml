@@ -12,8 +12,4 @@
 	 	android:id="@+id/refresh"
 		android:title="@string/refresh"
 		android:icon="@drawable/refresh"/>
-	<item 
-	 	android:id="@+id/freeRequest"
-		android:title="@string/freeRequest"
-		android:icon="@drawable/refresh"/>
 </menu>

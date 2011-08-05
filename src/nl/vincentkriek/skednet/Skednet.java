@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import nl.vincentkriek.skednet.schedule.Day;
 import nl.vincentkriek.skednet.schedule.Week;
 
 import org.apache.http.HttpResponse;
@@ -48,11 +47,12 @@ public class Skednet {
 	 * @param context The application context, used to retrieve various application settings
 	 * @return A boolean to indicate wether it succeeded
 	 */
-	public static ArrayList<Week> getWorkdays(Context context) {
+	public static ArrayList<Week> getWorkdays(Context context, boolean refresh) {
 		ArrayList<Week> workdays = readWorkdays(context);
-		if(workdays.isEmpty()) {
-	        String html = getAuthorized("index.php?page=freerequest2", context);
-	        workdays = parseSchedule(html);
+		if(workdays.isEmpty() || refresh) {
+	        String html = getAuthorized("index.php?page=pschedule", context);
+	        Schedule schedule = new Schedule(html);
+	        workdays = schedule.parse();
             writeWorkdays(workdays, context);
 		}
         return workdays;
@@ -109,49 +109,6 @@ public class Skednet {
 		} catch (IOException e) {
         	Log.e(TAG, e.getMessage());
 		}
-	}
-	
-	/**
-	 * Parses the skednet page and returns a list of weeks
-	 * @param html the skednet schedule page
-	 * @return A ArrayList of weeks
-	 */
-	public static ArrayList<Week> parseSchedule(String html) {
-		ArrayList<Week> workdays = new ArrayList<Week>();
-		
-        Document doc = Jsoup.parse(html);
-        Elements elements = doc.select("table[width=825px]");
-        ListIterator<Element> iterator = elements.listIterator();
-
-        while(iterator.hasNext()) {
-        	Element next = iterator.next();
-        	Elements rows = next.getElementsByTag("tr");
-        	
-        	ListIterator<Element> iterator1 = rows.listIterator();
-        	Week week = new Week();
-        	while(iterator1.hasNext()) {
-        		Element row = iterator1.next();
-            	String weeknumber = row
-            			.select("th[style=border-bottom:1px solid #01376D;background-color:#0059bb;color:#FFFFFF;text-align:center;font-weight:bold")
-            			.text();
-            	
-            	if(weeknumber.length() > 1) {
-            		week.setNumber(Integer.parseInt(weeknumber.replace("Week ", "")));
-            		continue;
-            	}
-
-            	Day day = new Day();
-            	day.setDay(row.select("td[style=padding-left:2px;width:68px;color:#000000]").text());
-            	day.setDate(row.select("td[style=border-right:1px solid #01376D;width:84px;color:#000000]").text());
-            	day.setTime(row.select("td[style=padding-left:2px;width:82px;border-right: 1px solid #01376D]").text());
-            	day.setStation(row.select("td[style=padding-left:2px;border-right:0px solid #444444;width:40px;]").text());
-            	
-            	if(day.isWorkday())
-            		week.addDay(day);	
-        	}
-        	workdays.add(week);
-        }
-        return workdays;
 	}
 	
 	public static ArrayList<FreeRequest> parseDaysOff(String html) {

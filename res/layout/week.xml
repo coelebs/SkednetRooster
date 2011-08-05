@@ -23,5 +23,7 @@
 	  android:layout_height="wrap_content"
 	  android:textColor="#000000"
 	  android:gravity="center"
-	  android:id="@+id/weekdays"/>
+	  android:id="@+id/weekdays"
+	  android:lineSpacingMultiplier="1.5"
+	  />
 </LinearLayout>

@@ -3,7 +3,6 @@ package nl.vincentkriek.skednet.activities;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import nl.vincentkriek.skednet.FreeRequest;
 import nl.vincentkriek.skednet.R;
 import nl.vincentkriek.skednet.Skednet;
 import nl.vincentkriek.skednet.schedule.Day;
@@ -64,10 +63,6 @@ public class Schedule extends Activity {
 		    	refresh = true;
 				fetch.execute(this);
 		    	return true;
-		    case R.id.freeRequest:
-		        String html = Skednet.getAuthorized("index.php?page=freerequest2", getApplicationContext());
- 		        ArrayList<FreeRequest> days = Skednet.parseDaysOff(html);
-		        return true;
 		    default:
 		        return super.onOptionsItemSelected(item);
 	    }
@@ -84,20 +79,8 @@ public class Schedule extends Activity {
 		 */
 		@Override
 		protected Object doInBackground(Context... params) {
-			if(!refresh) {
-				workdays = Skednet.readWorkdays(getApplicationContext());
-			} else {
-				workdays = new ArrayList<Week>();
-			}
-			refresh = false;
-			
-			if(workdays.isEmpty()) {
-				publishProgress(1);
-		        String html = Skednet.getAuthorized("index.php?page=pschedule", getApplicationContext());
-		        publishProgress(2);
-		        workdays = Skednet.parseSchedule(html);
-	            Skednet.writeWorkdays(workdays, getApplicationContext());
-			}
+			publishProgress(1);
+			workdays = Skednet.getWorkdays(getApplicationContext(), refresh);
 	        return true;
 		}
 		

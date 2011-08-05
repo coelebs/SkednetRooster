@@ -9,9 +9,9 @@
     		      android:icon="@drawable/icon">
         <activity android:name=".activities.Schedule"
                   android:theme="@android:style/Theme.Black.NoTitleBar"/>
-        <activity and.activities.Settings=".Settings"
+        <activity android:name=".activities.Settings"
         		  android:theme="@android:style/Theme.Black.NoTitleBar"/>
-        <activity and.activities.Loginame=".Login"
+        <activity android:name=".activities.Login"
         		  android:noHistory="true"
                   android:label="@string/app_name"
                   android:theme="@android:style/Theme.Black.NoTitleBar">
