@@ -67,13 +67,25 @@ public class Day implements Serializable {
 
 	/**
 	 * A string that represents the current object
-	 * in the format "day date\ntime station"
+	 * in the format "day date time station"
 	 */
 	public String toString() {
 		SimpleDateFormat startformat =  new SimpleDateFormat("EEE dd MMM HH:mm", new Locale("nl", "NL"));
 		SimpleDateFormat endformat =  new SimpleDateFormat("HH:mm", new Locale("nl", "NL"));
 
 		return startformat.format(startDate) + " - " + endformat.format(endDate) + " " + station;
+	}
+	
+	public String toDayString() {
+		SimpleDateFormat startformat =  new SimpleDateFormat("EEE dd MMM", new Locale("nl", "NL"));
+		return startformat.format(startDate);
+	}
+	
+	public String toTimeString() {
+		SimpleDateFormat startformat =  new SimpleDateFormat("HH:mm", new Locale("nl", "NL"));
+		SimpleDateFormat endformat =  new SimpleDateFormat("HH:mm", new Locale("nl", "NL"));
+
+		return startformat.format(startDate) + " - " + endformat.format(endDate) + " " + this.station;
 	}
 	
 	public Date parseDate(String date, int monthLength) {

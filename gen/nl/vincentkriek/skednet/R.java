@@ -26,12 +26,13 @@ public final class R {
     }
     public static final class id {
         public static final int badge_input=0x7f080001;
-        public static final int logout=0x7f080008;
+        public static final int logout=0x7f080009;
         public static final int password_input=0x7f080002;
-        public static final int refresh=0x7f08000a;
-        public static final int settings=0x7f080009;
+        public static final int refresh=0x7f08000b;
+        public static final int settings=0x7f08000a;
         public static final int submit=0x7f080003;
         public static final int text=0x7f080000;
+        public static final int times=0x7f080008;
         public static final int week=0x7f080005;
         public static final int weekday_layout=0x7f080004;
         public static final int weekdays=0x7f080007;

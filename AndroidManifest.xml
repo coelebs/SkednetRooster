@@ -7,11 +7,11 @@
     <application  android:label="@string/app_name" 
     		      android:debuggable="false"
     		      android:icon="@drawable/icon">
-        <activity android:name=".activities.Schedule"
+        <activity android:name=".activities.ScheduleActivity"
                   android:theme="@android:style/Theme.Black.NoTitleBar"/>
-        <activity android:name=".activities.Settings"
+        <activity android:name=".activities.SettingsActivity"
         		  android:theme="@android:style/Theme.Black.NoTitleBar"/>
-        <activity android:name=".activities.Login"
+        <activity android:name=".activities.LoginActivity"
         		  android:noHistory="true"
                   android:label="@string/app_name"
                   android:theme="@android:style/Theme.Black.NoTitleBar">

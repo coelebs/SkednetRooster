@@ -16,14 +16,28 @@
 	  android:textStyle="bold"
 	  android:id="@+id/weeknumber"
 	  android:layout_marginBottom="5sp"/>
-	<TextView
-	  xmlns:android="http://schemas.android.com/apk/res/android"
+	<LinearLayout
 	  android:background="@drawable/week_days"
 	  android:layout_width="fill_parent"
 	  android:layout_height="wrap_content"
-	  android:textColor="#000000"
 	  android:gravity="center"
+	  android:orientation="horizontal">
+	<TextView
+	  xmlns:android="http://schemas.android.com/apk/res/android"
+	  android:layout_width="wrap_content"
+	  android:layout_height="wrap_content"
+	  android:textColor="#000000"
+	  android:gravity="left"
 	  android:id="@+id/weekdays"
-	  android:lineSpacingMultiplier="1.5"
-	  />
+	  android:lineSpacingMultiplier="1.2"/>
+	<TextView
+	  xmlns:android="http://schemas.android.com/apk/res/android"
+	  android:layout_width="wrap_content"
+	  android:layout_height="wrap_content"
+	  android:textColor="#000000"
+	  android:gravity="left"
+	  android:id="@+id/times"
+	  android:layout_marginLeft="6dp" 
+	  android:lineSpacingMultiplier="1.2"/>
+	  </LinearLayout>
 </LinearLayout>
